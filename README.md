@@ -27,9 +27,9 @@ The provided script requires the user to specify a file extension and accepts bo
 python pc2latex.py <file extension> <file | folder> [files | folders]...
 ```
 
-This will generate a file within the same directory as the original file with the `.tex` extension.
+This will generate a file within the same directory as the specified file with the `.tex` extension.
 
-To optimise workflow, execute the above command within LaTeX by adding the following line in the preamble.
+To optimise workflow, execute the above command within LaTeX by adding the following line in the documents preamble.
 
 ```tex
 \immediate\write18{<command>}
