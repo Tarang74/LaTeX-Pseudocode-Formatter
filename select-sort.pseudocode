@@ -1,0 +1,12 @@
+ALGORITHM SelectSort(A[0..n-1])
+// Selection sort algorithm 
+for i <- 0 to n - 1 do
+    SmallSub = i
+    for j <- i + 1 to n - 1 do
+        if A[j] < A[SmallSub]
+            SmallSub = j
+
+    temp = A[i]
+    A[SmallSub] = temp
+
+return A

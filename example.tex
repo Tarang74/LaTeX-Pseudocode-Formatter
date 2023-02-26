@@ -1,0 +1,10 @@
+%!TEX TS-program = xelatex
+%!TEX options = -aux-directory=aux -shell-escape -interaction=nonstopmode -synctex=1 "%DOC%"
+\documentclass{article}
+\usepackage{nccmath}
+
+\immediate\write18{python pc2latex.py pseudocode select-sort.pseudocode}
+
+\begin{document}
+\input{select-sort.tex}
+\end{document}
