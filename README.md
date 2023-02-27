@@ -37,12 +37,32 @@ To optimise workflow, execute the above command within LaTeX by adding the follo
 
 where `<command>` is the shell command used above.
 
+## Pseudocode Conventions
+
+Only a select few keywords are recognised and all other words are treated as variables.
+Operators and most symbols are automatically converted to their LaTeX macros.
+
+For labelled braces (see the example), use the following syntax.
+
+```bash
+# At the end of the pseudocode file
+
+# Right brace spanning multiple lines
+:{<start line number>:<end line number>}<LaTeX>
+
+# Right brace spanning a single line
+:{<line number>}<LaTeX>
+```
+
+Intersection of ranges is not supported and encapsulating ranges must be placed after all inner ranges.
+
 ## Minimal Reproduceable Example
 
 `Pseudocode/select-sort.pseudocode`:
 
 ```pseudocode
 ALGORITHM SelectSort(A[0..n-1])
+// Selection sort algorithm
 for i <- 0 to n - 1 do
     SmallSub = i
     for j <- i + 1 to n - 1 do
@@ -53,6 +73,9 @@ for i <- 0 to n - 1 do
     A[SmallSub] = temp
 
 return A
+:{6:7}O\left( 1 \right)
+:{5:7}O\left( n \right)
+:{3:10}O\left( n^2 \right)
 ```
 
 Command-line (produces `.tex` file):
@@ -75,3 +98,5 @@ Within LaTeX:
 \input{Pseudocode/select-sort.tex}
 \end{document}
 ```
+
+![Example output](example.png)

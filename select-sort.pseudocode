@@ -1,5 +1,5 @@
 ALGORITHM SelectSort(A[0..n-1])
-// Selection sort algorithm 
+// Selection sort algorithm
 for i <- 0 to n - 1 do
     SmallSub = i
     for j <- i + 1 to n - 1 do
@@ -10,3 +10,6 @@ for i <- 0 to n - 1 do
     A[SmallSub] = temp
 
 return A
+:{6:7}O\left( 1 \right)
+:{5:7}O\left( n \right)
+:{3:10}O\left( n^2 \right)

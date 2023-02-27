@@ -1,6 +1,8 @@
 from pygments.lexer import RegexLexer, words, include, bygroups
 from pygments.token import Keyword, Number, Name, Whitespace, Comment, Operator, Punctuation
 
+import re
+
 
 class PseudocodeLexer(RegexLexer):
     """
@@ -11,7 +13,8 @@ class PseudocodeLexer(RegexLexer):
     filenames = ["*.pseudocode"]
     mimetypes = []
 
-    ops = words(["**", "!=", "==", "<=", ">=", "<-", "!", "*", "/", "%", "+", "-", "<", ">"])
+    ops = words(["**", "!=", "==", "<=", ">=", "<-",
+                "!", "*", "/", "%", "+", "-", "<", ">"])
 
     keywords = words([
         "if", "else", "while", "repeat", "for", "to", "do", "return"
@@ -28,8 +31,7 @@ class PseudocodeLexer(RegexLexer):
             (r"(//)(.*?)$", bygroups(Punctuation, Comment.Singleline))
         ],
         "identifiers": [
-            (r"\b[A-Z]+\b", Name.Variable),
-            (r"[a-z]+", Name.Variable)
+            (r"\b[A-Za-z]+\b", Name.Variable)
         ],
         "root": [
             include("special"),
@@ -58,6 +60,7 @@ def style_text(s: str, style: str) -> str:
 
 
 TAB_SIZE = 4
+
 
 def pseudocode_to_latex(filename: str):
     operators = {
@@ -89,11 +92,18 @@ def pseudocode_to_latex(filename: str):
     }
 
     with open(filename, "r") as f:
-        code = f.read()
+        text = f.read()
+
+    # Split at the first colon if the user wishes to add complexity information
+    search = re.search(r"(?<=\n)\:", text)
+
+    code, line_info = (
+        text[: search.span()[0]],
+        text[search.span()[0]:])
 
     lexer = PseudocodeLexer()
 
-    formatted = "\\begin{fleqn}\n\t\\begin{align*}\n\t\t& "
+    formatted = "\t\t& "
 
     tokens = lexer.get_tokens_unprocessed(code)
     final_idx = list(tokens)[-1][0]
@@ -101,7 +111,9 @@ def pseudocode_to_latex(filename: str):
     for (idx, tokenType, text) in lexer.get_tokens_unprocessed(code):
         text_to_add = ""
         if tokenType is Whitespace:
-            if "\n" in text:
+            if "\n\n" in text:
+                text_to_add = f" \\\\\n\t\t& \\\\\n\t\t& "
+            elif "\n" in text:
                 if idx != final_idx:
                     text_to_add = f" \\\\\n\t\t& "
                 else:
@@ -111,7 +123,8 @@ def pseudocode_to_latex(filename: str):
 
             extra_whitespace = text.split("\n")[-1]
             if extra_whitespace:
-                text_to_add += r'\qquad ' * (len(extra_whitespace) // TAB_SIZE)
+                text_to_add += r'\qquad ' * (
+                    len(extra_whitespace) // TAB_SIZE)
         elif tokenType is Comment.Singleline:
             text_to_add = text + r"}"
         elif tokenType is Name.Label:
@@ -134,7 +147,70 @@ def pseudocode_to_latex(filename: str):
 
         formatted += text_to_add
 
-    formatted += "\t\\end{align*}\n\\end{fleqn}"
+    # Split into lines
+    formatted = formatted.split("\n")
+
+    if line_info:
+        double_slash = "\\\\"
+        def brace(
+            x): return f"\\left.\\vphantom{{\\begin{{aligned}}{double_slash * x}\\end{{aligned}}}} \\right\\}}"
+        begin_aligned = "\\begin{aligned}\n"
+        end_aligned = "\\end{aligned}"
+
+        matches: list[tuple[str, str]] = re.findall(
+            r"(?<=\:)\{(.+?)\}(.*)", line_info)
+
+        ranges = []
+
+        for (idx_range_str, info) in matches:
+            # subtract 1 due to 0 indexing
+            idx_range: list[int] = [int(x) - 1
+                                    for x in idx_range_str.split(":")]
+
+            # Curly brace on same line
+            if len(idx_range) == 1:
+                line = formatted[idx_range[0]]
+
+                # Before any eol if exists
+                if line.endswith("\\\\"):
+                    end = re.search(r"\\$", line).span()[0]
+                else:
+                    end = len(line) + 1
+
+                text_to_insert = f"\\ \\left.\\right\\}} {info} "
+                line = line[:end] + text_to_insert + line[end:]
+
+                formatted[idx_range[0]] = line
+            else:
+                ranges.append(idx_range)
+                line1 = formatted[idx_range[0]]
+                line2 = formatted[idx_range[1]]
+
+                # add begin align
+                start = re.search(r"\s+&", line1).span()[1]
+                line1 = line1[:start] + f" {begin_aligned}" + \
+                    line1[:start - 1] + "\t&" + line1[start:]
+
+                # add end align
+                if line2.endswith("\\\\"):
+                    line2 = re.sub(r"\n", "\n\t", line2)
+                    line2 = "\t" + line2[:-2] + "\n" + line1[:start - 1] + \
+                        f"{end_aligned} {brace(idx_range[1]-idx_range[0]+1)} " + info + " \\\\"
+                else:
+                    line2 = re.sub(r"\n", "\n\t", line2)
+                    line2 = "\t" + line2 + "\n" + \
+                        line1[:start - 1] + f"{end_aligned} {brace(idx_range[1]-idx_range[0]+1)} " + info
+
+                formatted[idx_range[0]] = line1
+                formatted[idx_range[1]] = line2
+
+                # Indent any intermediate lines
+                for idx in range(idx_range[0] + 1, idx_range[1]):
+                    formatted[idx] = "\t" + re.sub(
+                        r"\n", "\n\t", formatted[idx])
+
+    formatted = "\n".join(formatted)
+    formatted = f"\\begin{{fleqn}}\n\t\\begin{{align*}}\n{formatted}\t\\end{{align*}}\n\\end{{fleqn}}"
 
     return formatted
 
@@ -142,17 +218,26 @@ def pseudocode_to_latex(filename: str):
 import sys
 import os
 
-if len(sys.argv) < 3:
-    print(
-        f"Usage: python {os.path.basename(__file__)} <file extension> <filename | folder> [filename | folder]...")
-    sys.exit(0)
+TEST = False
 
-if len(sys.argv) == 3 and any(sys.argv[2] == h for h in ["-h", "--help", "/?", "/help", "-man", "/h", "/help", "-?"]):
+if len(sys.argv) < 3:
+    if TEST:
+        print(pseudocode_to_latex("select-sort.pseudocode"))
+        quit()
+    else:
+        print(
+            f"Usage: python {os.path.basename(__file__)} <file extension> <filename | folder> [filename | folder]...")
+        sys.exit(0)
+
+if len(
+        sys.argv) == 3 and any(
+        sys.argv[2] == h
+        for h
+        in ["-h", "--help", "/?", "/help", "-man", "/h", "/help", "-?"]):
     print(
         f"Usage: python {os.path.basename(__file__)} <file extension> <filename | folder> [filename | folder]...")
     print("View on GitHub: https://github.com/Tarang74/Pseudocode-to-LaTeX")
     sys.exit(0)
-
 
 
 def process_file(input_file):
