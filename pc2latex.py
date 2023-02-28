@@ -97,9 +97,13 @@ def pseudocode_to_latex(filename: str):
     # Split at the first colon if the user wishes to add complexity information
     search = re.search(r"(?<=\n)\:", text)
 
-    code, line_info = (
-        text[: search.span()[0]],
-        text[search.span()[0]:])
+    if search is None:
+        code = text
+        line_info = None
+    else:
+        code, line_info = (
+            text[: search.span()[0]],
+            text[search.span()[0]:])
 
     lexer = PseudocodeLexer()
 
