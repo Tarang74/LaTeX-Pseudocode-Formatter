@@ -17,7 +17,7 @@ class PseudocodeLexer(RegexLexer):
                 "!", "*", "/", "%", "+", "-", "<", ">"])
 
     keywords = words([
-        "if", "else", "while", "repeat", "for", "to", "do", "return"
+        "if", "else", "while", "repeat", "for", "to", "do", "return", "until"
     ], suffix=r"\b")
 
     tokens = {
@@ -64,16 +64,16 @@ TAB_SIZE = 4
 
 def pseudocode_to_latex(filename: str):
     operators = {
-        r"**": "\\ast\\ast",
-        r"!=": "\\neq",
-        r"==": "\\eq",
-        r"<=": "\\leq",
-        r">=": "\\geq",
-        r"<-": "\\leftarrow",
-        r"!": "\neg",
-        r"*": "\\ast",
-        r"/": "\\div",
-        r"%": "\\percent",
+        r"**": "\\ast\\ast ",
+        r"!=": "\\neq ",
+        r"==": "\\eq ",
+        r"<=": "\\leq ",
+        r">=": "\\geq ",
+        r"<-": "\\leftarrow ",
+        r"!": "\\neg ",
+        r"*": "\\ast ",
+        r"/": "\\div ",
+        r"%": "\\percent ",
         r"+": "+",
         r"-": "-",
         r"<": "<",
@@ -176,8 +176,8 @@ def pseudocode_to_latex(filename: str):
                 line = formatted[idx_range[0]]
 
                 # Before any eol if exists
-                if line.endswith("\\\\"):
-                    end = re.search(r"\\$", line).span()[0]
+                if line.endswith(double_slash):
+                    end = len(line) - re.search(double_slash, line[::-1]).span()[1] - 1
                 else:
                     end = len(line) + 1
 
@@ -196,10 +196,10 @@ def pseudocode_to_latex(filename: str):
                     line1[:start - 1] + "\t&" + line1[start:]
 
                 # add end align
-                if line2.endswith("\\\\"):
+                if line2.endswith(double_slash):
                     line2 = re.sub(r"\n", "\n\t", line2)
                     line2 = "\t" + line2[:-2] + "\n" + line1[:start - 1] + \
-                        f"{end_aligned} {brace(idx_range[1]-idx_range[0]+1)} " + info + " \\\\"
+                        f"{end_aligned} {brace(idx_range[1]-idx_range[0]+1)} " + info + " " + double_slash
                 else:
                     line2 = re.sub(r"\n", "\n\t", line2)
                     line2 = "\t" + line2 + "\n" + \
