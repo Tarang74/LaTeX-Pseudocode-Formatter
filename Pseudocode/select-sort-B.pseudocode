@@ -1,0 +1,16 @@
+ALGORITHM SelectSort($A\left[0..n - 1\right]$)
+// Selection sort algorithm.
+for $i \leftarrow 0$ to $n - 1$ do
+    $SmallSub \leftarrow i$
+    for $j \leftarrow i + 1$ to $n - 1$ do
+        if $A[j] < A[SmallSub]$ then
+            $SmallSub \leftarrow j$
+
+    $temp \leftarrow A[i]$
+    $A[SmallSub] \leftarrow temp$
+
+return $A$
+:{0}{6:6}\(O\left( 1 \right)\)
+:{1}{5:7}\(O\left( n \right)\)
+:{2}{3:10}\(O\left( n^2 \right)\)
+>{7}{1.5, 1.5}

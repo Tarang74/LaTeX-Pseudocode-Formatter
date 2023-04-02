@@ -1,0 +1,30 @@
+\begin{minted}[escapeinside=??, fontfamily=lmr]{text}
+?\sffamily{\textbf{ALGORITHM}}? ?\textit{SelectSort}?(?\(A\left[0..n - 1\right]\)?)?\tikzmark[selectsortBL1]{selectsortBL1}?
+?/\!/?? Selection sort algorithm.??\tikzmark[selectsortBL2]{selectsortBL2}?
+?\textbf{for}? ?\(i \leftarrow 0\)? ?\textbf{to}? ?\(n - 1\)? ?\textbf{do}??\tikzmark{selectsortBL3}?
+    ?\(SmallSub \leftarrow i\)?
+    ?\textbf{for}? ?\(j \leftarrow i + 1\)? ?\textbf{to}? ?\(n - 1\)? ?\textbf{do}??\tikzmark{selectsortBL5}?
+        ?\textbf{if}? ?\(A[j] < A[SmallSub]\)? ?\textbf{then}??\tikzmark{selectsortBL6}?
+            ?\(SmallSub \leftarrow j\)??\tikzmark{selectsortBL7}?
+
+    ?\(temp \leftarrow A[i]\)?
+    ?\(A[SmallSub] \leftarrow temp\)??\tikzmark{selectsortBL10}?
+
+?\textbf{return}? ?\(A\)?
+\end{minted}
+\begin{tikzpicture}[remember picture,overlay]
+\coordinate (selectsortBBASEX) at (7, 0);
+\draw ({pic cs:selectsortBL1}-|selectsortBBASEX) coordinate (selectsortBA);
+\draw ({pic cs:selectsortBL2}-|selectsortBBASEX) coordinate (selectsortBB);
+\tikzmath{coordinate \selectsortBDVEC;
+    \selectsortBDVEC = (selectsortBA)-(selectsortBB);
+    \selectsortBD = (\selectsortBDVECy);
+    \selectsortBD = \convertto{cm}{\selectsortBD pt};
+}
+\draw (selectsortBA) ++ (0, {0.75cm*\selectsortBD}) [decorate, decoration = {calligraphic brace, amplitude=5pt}, line width=1.25pt]
+++ (0, {-5*\selectsortBD}) --++ (0, {-1*\selectsortBD}) node [black,midway,xshift=0.2cm,anchor=west] {\(O\left( 1 \right)\)};
+\draw (selectsortBA) ++ (1.5, {0.75cm*\selectsortBD}) [decorate, decoration = {calligraphic brace, amplitude=5pt}, line width=1.25pt]
+++ (0, {-4*\selectsortBD}) --++ (0, {-3*\selectsortBD}) node [black,midway,xshift=0.2cm,anchor=west] {\(O\left( n \right)\)};
+\draw (selectsortBA) ++ (3.0, {0.75cm*\selectsortBD}) [decorate, decoration = {calligraphic brace, amplitude=5pt}, line width=1.25pt]
+++ (0, {-2*\selectsortBD}) --++ (0, {-8*\selectsortBD}) node [black,midway,xshift=0.2cm,anchor=west] {\(O\left( n^2 \right)\)};
+\end{tikzpicture}

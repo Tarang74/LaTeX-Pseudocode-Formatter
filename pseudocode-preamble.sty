@@ -1,0 +1,11 @@
+\usepackage[outputdir=aux]{minted}
+
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathreplacing,calligraphy,tikzmark,calc,math}
+
+\makeatletter
+\def\convertto#1#2{\strip@pt\dimexpr #2*65536/\number\dimexpr 1#1}
+\makeatother
+
+% Change where to find *.pseudo and *.pseudocode files by modifying this command
+\immediate\write18{python Pseudocode.py Pseudocode}

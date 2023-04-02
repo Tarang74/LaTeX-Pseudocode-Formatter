@@ -1,10 +1,11 @@
 %!TEX TS-program = xelatex
 %!TEX options = -aux-directory=aux -shell-escape -interaction=nonstopmode -synctex=1 "%DOC%"
 \documentclass{article}
-\usepackage{nccmath}
+\input{pseudocode-preamble.sty}
 
-\immediate\write18{python pc2latex.py pseudocode select-sort.pseudocode}
+\setminted{linenos} % Style your minted environments here
 
 \begin{document}
-\input{select-sort.tex}
+\input{Pseudocode/select-sort-A.tex}
+\input{Pseudocode/select-sort-B.tex}
 \end{document}

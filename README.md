@@ -17,71 +17,118 @@ For Python:
 
 For LaTeX:
 
-- [nccmath](https://ctan.org/pkg/nccmath) --- For page alignment in math mode
+- [minted](https://ctan.org/pkg/minted) --- For typesetting code listings
+- [ti*k*Z](https://ctan.org/pkg/pgf) --- For drawing curly braces
 
-## Usage
+## Getting Started
 
-The provided script requires the user to specify a file extension and accepts both files or folders.
+1. Copy `pseudocode-preamble.sty` and `Pseudocode.py` to your project directory.
+2. Add the following line of code to the preamble of your `*.tex` file.
+
+   ```tex
+   \input{pseudocode-preamble.sty}
+   ```
+
+3. Place pseudocode in independent files with glob pattern `*.pseudo` or `*.pseudocode`,
+   ensuring that filenames do not contain numbers. Place these code files inside a folder called `Pseudocode/`.
+   (You may specify another directory by modifying the command in `pseudocode-preamble.sty`).
+4. Place an `\input{<filename>.tex}` macro where you would like your code to appear.
+5. Compile your program.
+   - If a pseudocode file is modified or a new file is included, you must compile the document twice for all marker locations to be updated.
+
+Note if you have not specified an `aux` directory, you will need to modify line 1 in `pseudocod-preamble.sty` and line 150 in `pseudocode.py`.
+
+## Pseudocode Fie Conventions
+
+Pseudocode can be placed in files with the glob pattern `*.pseudo` or `*.pseudocode`.
+
+**Warning: file names cannot contain numbers. Special characters will be ignored.**
+
+Recognised keywords are automatically formatted as **bold**.
+All other text is formatted as plain text.
+
+For typesetting mathematical expressions, operators, and variables, surround
+text with dollar signs (`$`).
+
+Comments are typeset as plain text, and can be invoked using double-backslashes (`//`).
+These may be placed anywhere in the code.
+To enter Math mode, place dollar signs within comments as previously stated.
+
+For description braces, use the following syntax.
 
 ```bash
-python pc2latex.py <file extension> <file | folder> [files | folders]...
+# Pseudocode
+ALGORITHM AlgorithmName()
+...
+
+# The following code must be placed at the end of the file
+# 1. Brace definitions (separate multiple definitions by a new line)
+:{<level>}{<start line number>:<end line number>}<label>
+# 2. Brace horizontal offsets
+>{<initial offset>}{<additional offsets>}
 ```
 
-This will generate a file within the same directory as the specified file with the `.tex` extension.
+- If 1. is omitted, 2. will be ignored and can also be omitted.
+- If 1. is present, 2. must also be present.
 
-To optimise workflow, execute the above command within LaTeX by adding the following line in the documents preamble.
+### Brace Definition Guide
 
-```tex
-\immediate\write18{<command>}
-```
+Specifying a `level` allows us to control the horizontal offset of braces that appear above other braces.
 
-where `<command>` is the shell command used above.
+- Levels start at 0, and take positive integer values.
 
-## Pseudocode Conventions
+The distance between two levels is controlled by `initial offset` and `additional offsets`.
 
-Only a select few keywords are recognised and all other words are treated as variables.
-Operators and most symbols are automatically converted to their LaTeX macros.
+- Distances can be positive or negative floating point values.
+- `additional offsets` must appear as comma separated values. If the number of supplied `additional offsets` is less than the maximum level,
+  the program will automatically choose the last supplied offset.
 
-For labelled braces (see the example), use the following syntax.
+For example:
 
 ```bash
-# At the end of the pseudocode file
-
-# Right brace spanning multiple lines
-:{<start line number>:<end line number>}<LaTeX>
-
-# Right brace spanning a single line
-:{<line number>}<LaTeX>
+...
+:{0}{1:2}...
+:{1}{2:3}...
+:{2}{3:4}...
+:{3}{4:5}...
+>{7}{1.5, 1.0}
 ```
 
-Intersection of ranges is not supported and encapsulating ranges must be placed after all inner ranges.
+In the above code:
+
+- Level 0 will be horizontally offset by 7cm (as specified).
+- Level 1 will be horizontally offset by 7cm + 1.5cm (as specified).
+- Level 2 will be horizontally offset by 7cm + 1.5cm + 1.0cm (as specified).
+- Level 3 will be horizontally offset by 7cm + 1.5cm + 1.0cm + 1.0cm
+  (the program chooses a 1.0cm offset for level 3 as it could not find a 3rd offset).
 
 ## Minimal Reproduceable Example
 
-`Pseudocode/select-sort.pseudocode`:
+`Pseudocode/select-sort-A.pseudocode`:
 
 ```pseudocode
-ALGORITHM SelectSort(A[0..n-1])
-// Selection sort algorithm
-for i <- 0 to n - 1 do
-    SmallSub = i
-    for j <- i + 1 to n - 1 do
-        if A[j] < A[SmallSub]
-            SmallSub = j
+ALGORITHM SelectSort($A\left[0..n - 1\right]$)
+// Selection sort algorithm.
+for $i \leftarrow 0$ to $n - 1$ do
+    $SmallSub \leftarrow i$
+    for $j \leftarrow i + 1$ to $n - 1$ do
+        if $A[j] < A[SmallSub]$ then
+            $SmallSub \leftarrow j$
 
-    temp = A[i]
-    A[SmallSub] = temp
+    $temp \leftarrow A[i]$
+    $A[SmallSub] \leftarrow temp$
 
-return A
-:{6:7}O\left( 1 \right)
-:{5:7}O\left( n \right)
-:{3:10}O\left( n^2 \right)
+return $A$
+:{0}{6:6}\(O\left( 1 \right)\)
+:{1}{5:7}\(O\left( n \right)\)
+:{2}{3:10}\(O\left( n^2 \right)\)
+>{7}{1.5, 1.5}
 ```
 
 Command-line (produces `.tex` file):
 
 ```bash
-python pc2latex.py pseudocode Pseudocode/select-sort.pseudocode
+python Pseudocode.py Pseudocode
 ```
 
 Within LaTeX:
@@ -90,13 +137,34 @@ Within LaTeX:
 %!TEX TS-program = xelatex
 %!TEX options = -aux-directory=aux -shell-escape -interaction=nonstopmode -synctex=1 "%DOC%"
 \documentclass{article}
-\usepackage{nccmath}
+\input{pseudocode-preamble.sty}
 
-\immediate\write18{python pc2latex.py pseudocode Pseudocode/select-sort.pseudocode}
+\setminted{linenos} % Style your minted environments here
 
 \begin{document}
-\input{Pseudocode/select-sort.tex}
+\input{Pseudocode/select-sort-A.tex}
+\input{Pseudocode/select-sort-B.tex}
 \end{document}
 ```
 
 ![Example output](example.png)
+
+## Debugging
+
+The provided script requires the user to specify a file extension and accepts both files or folders.
+
+```bash
+python Pseudocode.py <file | folder> [files | folders]...
+```
+
+This will generate a file within the same directory as the specified file with the `.tex` extension.
+
+To optimise workflow, the above command has been placed within LaTeX using:
+
+```tex
+\immediate\write18{<command>}
+```
+
+where `<command>` is a shell command.
+
+If the program does not produce the desired output, please check the output of the PseudocodeLexer in the `aux` directory.
