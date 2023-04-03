@@ -151,7 +151,7 @@ Within LaTeX:
 
 ## Debugging
 
-The provided script requires the user to specify a file extension and accepts both files or folders.
+The provided script accepts both files and folders.
 
 ```bash
 python Pseudocode.py <file | folder> [files | folders]...
@@ -168,3 +168,5 @@ To optimise workflow, the above command has been placed within LaTeX using:
 where `<command>` is a shell command.
 
 If the program does not produce the desired output, please check the output of the PseudocodeLexer in the `aux` directory.
+
+Certain constants such as the output directory and the debugging flag can be modified from this file also. See line 149.
