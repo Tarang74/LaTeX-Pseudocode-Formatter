@@ -36,7 +36,7 @@ For LaTeX:
 5. Compile your program.
    - If a pseudocode file is modified or a new file is included, you must compile the document twice for all marker locations to be updated.
 
-Note if you have not specified an `aux` directory, you will need to modify line 1 in `pseudocod-preamble.sty` and line 150 in `pseudocode.py`.
+Note if you have not specified an `aux` directory, you will need to modify line 1 in `pseudocode-preamble.sty` and line 150 in `pseudocode.py`.
 
 ## Pseudocode Fie Conventions
 
