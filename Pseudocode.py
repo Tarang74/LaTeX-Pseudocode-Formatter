@@ -167,11 +167,9 @@ def format_pseudocode(pseudocode: str, filename: str) -> str:
                     pseudocode)
                 horz_shift = search.groups()[0]
 
-                cumulative_offset = 0.0
                 for i, x in enumerate(
                         search.groups()[1].strip(" ").split(",")):
-                    level_offsets[i + 1] = float(x) + cumulative_offset
-                    cumulative_offset += float(x)
+                    level_offsets[i + 1] = float(x)
 
                 # Delete lines
                 pseudocode = pseudocode[:search.span()[0] - 1]
@@ -266,9 +264,6 @@ def format_pseudocode(pseudocode: str, filename: str) -> str:
 
         del marker1, marker2
 
-        # Store last horizontal offset in case length of provided list is too small
-        prev_level_offset = 0
-
         # Add tikzmarkers on relevant lines
         for (level, start, end, label) in brace_definitions:
             level = int(level)
@@ -281,13 +276,15 @@ def format_pseudocode(pseudocode: str, filename: str) -> str:
             if level > 0:
                 # If fewer offsets are provided, use provided offsets and add last offset (levels - len(level_offsets)) times
                 if level not in level_offsets.keys():
-                    available = len(level_offsets.values())
+                    available = len(level_offsets)
                     missing = level - available
 
-                    level_offset = sum(level_offsets.values())
-                    level_offset += missing * level_offsets[available]
+                    level_offset = sum(level_offsets.values(
+                    )) + missing * level_offsets[available]
                 else:
-                    level_offset = level_offsets[level]
+                    level_offset = sum(
+                        level_offsets[l] for l in range(
+                            1, level + 1))
 
             # L: line
             if start != end:
