@@ -279,19 +279,15 @@ def format_pseudocode(pseudocode: str, filename: str) -> str:
 
             level_offset = 0
             if level > 0:
-                # If fewer offsets are provided, use last offset provided
+                # If fewer offsets are provided, use provided offsets and add last offset (levels - len(level_offsets)) times
                 if level not in level_offsets.keys():
-                    if len(level_offsets.values()) > 1:
-                        last_available_offset = level_offsets[len(
-                            level_offsets.values())] - level_offsets[len(level_offsets.values()) - 1]
-                    else:
-                        last_available_offset = level_offsets[1]
+                    available = len(level_offsets.values())
+                    missing = level - available
 
-                    level_offset = prev_level_offset + last_available_offset
+                    level_offset = sum(level_offsets.values())
+                    level_offset += missing * level_offsets[available]
                 else:
                     level_offset = level_offsets[level]
-
-            prev_level_offset = level_offset
 
             # L: line
             if start != end:
@@ -316,11 +312,7 @@ def format_pseudocode(pseudocode: str, filename: str) -> str:
             draw = f"\\draw ({filename}A) ++ ({level_offset}, {{0.75cm*\\{filename}D}}) "
 
             # Draw brace top to bottom
-            if (start != end):
-                draw += f"""[decorate, decoration = {{calligraphic brace, amplitude=5pt}}, line width={BRACE_THICKNESS}pt]
-++ (0, {{-{start-1}*\\{filename}D}}) --++ (0, {{-{end-start+1}*\\{filename}D}})"""
-            else:
-                draw += f"""[decorate, decoration = {{calligraphic brace, amplitude=5pt}}, line width={BRACE_THICKNESS}pt]
+            draw += f"""[decorate, decoration = {{calligraphic brace, amplitude=5pt}}, line width={BRACE_THICKNESS}pt]
 ++ (0, {{-{start-1}*\\{filename}D}}) --++ (0, {{-{end-start+1}*\\{filename}D}})"""
 
             # Label
