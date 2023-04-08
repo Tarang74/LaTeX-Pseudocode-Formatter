@@ -50,7 +50,7 @@ All other text is formatted as plain text.
 For typesetting mathematical expressions, operators, and variables, surround
 text with dollar signs (`$`).
 
-Comments are typeset as plain text, and can be invoked using double-backslashes (`//`).
+Comments are typeset as plain text, and can be invoked using double-forwardslashes (`//`).
 These may be placed anywhere in the code.
 To enter Math mode, place dollar signs within comments as previously stated.
 
@@ -146,6 +146,12 @@ Within LaTeX:
 \input{Pseudocode/select-sort-B.tex}
 \end{document}
 ```
+
+Note that if you are using the [LaTeX Workshop](https://marketplace.visualstudio.com/items?itemName=James-Yu.latex-workshop)
+extension in VSCode, the magic comments (TeX directives) used in this example are disabled by default.
+To enable them, please see [this issue](https://github.com/James-Yu/LaTeX-Workshop/issues/3027).
+
+## Example Output
 
 ![Example output](example.png)
 
