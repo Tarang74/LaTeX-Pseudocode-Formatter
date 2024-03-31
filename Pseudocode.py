@@ -342,7 +342,7 @@ help_commands = ["-h", "--help", "/?",
 if len(sys.argv) == 1 and any(sys.argv[2] == h for h in help_commands):
     print(
         f"Usage: python {os.path.basename(__file__)} <filename | folder> [filename | folder]...")
-    print("View on GitHub: https://github.com/Tarang74/Pseudocode-to-LaTeX")
+    print("View on GitHub: https://github.com/Tarang74/LaTeX-Pseudocode-Formatter")
     sys.exit(0)
 
 
